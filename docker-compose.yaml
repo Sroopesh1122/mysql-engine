@@ -49,7 +49,6 @@ services:
   worker:
     build:
       context: ./worker
-    container_name: mysql-worker
     environment:
       REDIS_URL: redis://redis:6379
       MYSQL_HOST: mysql

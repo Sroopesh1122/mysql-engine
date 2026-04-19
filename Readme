@@ -1,0 +1,12 @@
+we need to add permission for judeuser
+
+✅ OPTION 1 (BEST): Grant ALL privileges (for judge system)
+
+Connect to MySQL:
+
+docker exec -it mysql-db mysql -u root -prootpassword
+
+Then run:
+
+GRANT ALL PRIVILEGES ON *.* TO 'judgeuser'@'%' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
