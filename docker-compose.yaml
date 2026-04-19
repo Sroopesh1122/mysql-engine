@@ -1,0 +1,66 @@
+version: "3.8"
+
+services:
+
+  # =======================
+  # REDIS (QUEUE + RESULT)
+  # =======================
+  redis:
+    image: redis:7-alpine
+    container_name: mysql-redis
+    ports:
+      - "6379:6379"
+    restart: always
+
+  # =======================
+  # MYSQL DATABASE
+  # =======================
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: judge
+      MYSQL_USER: judgeuser
+      MYSQL_PASSWORD: judgepass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  # =======================
+  # EXPRESS API
+  # =======================
+  api:
+    build:
+      context: ./api
+    container_name: mysql-api
+    ports:
+      - "3000:3000"
+    environment:
+      API_PORT: 3000
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - redis
+    restart: always
+
+  # =======================
+  # WORKER (BULLMQ)
+  # =======================
+  worker:
+    build:
+      context: ./worker
+    container_name: mysql-worker
+    environment:
+      REDIS_URL: redis://redis:6379
+      MYSQL_HOST: mysql
+      MYSQL_USER: judgeuser
+      MYSQL_PASSWORD: judgepass
+    depends_on:
+      - redis
+      - mysql
+    restart: always
+
+volumes:
+  mysql_data:
